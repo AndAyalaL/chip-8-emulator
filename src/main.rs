@@ -60,10 +60,7 @@ impl Chip8 {
         return 45;
     }
     pub fn op_7xkk(&mut self,x:usize, y:u8) -> usize{
-        let (res,overflow) = self.v[x].overflowing_add(y);
-        self.v[x] = res;
-
-        self.v[15] = if overflow { 1 } else { 0 };
+        self.v[x] = self.v[x].wrapping_add(y);
 
         self.pc +=2;
 
@@ -93,14 +90,26 @@ impl Chip8 {
     }
 
     pub fn op_8xy3(&mut self, x:usize, y:u8) -> usize {
-        return 0;
+        self.v[x] = self.v[x] ^ self.v[y as usize];
+        self.pc +=2;
+        return 45;
     }
 
     pub fn op_8xy4(&mut self, x:usize, y:u8) -> usize {
+        let (result,overflow) = self.v[x].overflowing_add(self.v[y as usize]);
+        self.v[0xF] = if overflow {1} else {0};
+        self.v[x] = result;
+
+        self.pc += 2;
         return 0;
     }
 
     pub fn op_8xy5(&mut self, x:usize, y:u8) -> usize {
+        
+        let (res, borrow) = self.v[x].overflowing_sub(self.v[y as usize]);
+        self.v[0xF] = if !borrow {1} else {0};
+        self.v[x] = res;
+        self.pc += 2;
         return 0;
     }
 
@@ -117,6 +126,10 @@ impl Chip8 {
     }
 
     pub fn op_9xy0(&mut self, x:usize, y:u8) -> usize {
+        if self.v[x] != self.v[y as usize]{
+            self.pc +=2;
+        }
+        self.pc +=2;
         return 0;
     }
 
