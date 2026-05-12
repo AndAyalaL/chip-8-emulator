@@ -110,18 +110,30 @@ impl Chip8 {
         self.v[0xF] = if !borrow {1} else {0};
         self.v[x] = res;
         self.pc += 2;
-        return 0;
+        return 45;
     }
 
     pub fn op_8xy6(&mut self, x:usize, y:u8) -> usize {
-        return 0;
+        let lsb = self.v[x] & 1;
+        self.v[0xF] = if lsb == 1 {1} else {0};
+        self.pc +=2;
+        self.v[x] = self.v[x] * 2;
+        return 45;
     }
 
     pub fn op_8xy7(&mut self, x:usize, y:u8) -> usize {
-        return 0;
+        let (res, borrow) = self.v[y as usize].overflowing_sub(self.v[x]);
+
+        self.v[0xF] = if !borrow {1} else {0};
+        self.v[x] = res;
+        return 45;
     }
 
     pub fn op_8xye(&mut self, x:usize, y:u8) -> usize {
+        let msb = self.v[x] & 7;
+        self.v[0xF] = if msb == 1 {1} else {0};
+        self.v[x] = self.v[x] * 2;
+        self.pc += 2;
         return 0;
     }
 
